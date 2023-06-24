@@ -1,25 +1,45 @@
-package herr
+package herr_test
 
 import (
-	"errors"
 	"testing"
+
+	"github.com/go-raizu/herr"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestHTTPError_Is(t *testing.T) {
+func TestStatusCode(t *testing.T) {
 	type args struct {
-		a, b HTTPError
+		err herr.HTTPError
 	}
-	tests := []struct {
+	tt := []struct {
 		name string
 		args args
-		want bool
+		want int
 	}{
-		{"", args{ErrBadRequest, ErrBadRequest}, true},
-		{"", args{ErrBadRequest, ErrNotFound}, false},
+		{"", args{herr.ErrBadRequest}, 400},
+		{"", args{herr.ErrNotFound}, 404},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			errors.Is(tt.args.a, tt.args.b)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equalf(t, tc.want, tc.args.err.StatusCode(), "StatusCode()")
+		})
+	}
+}
+
+func TestError(t *testing.T) {
+	type args struct {
+		err herr.HTTPError
+	}
+	tt := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"", args{herr.ErrBadRequest}, "400 (Bad Request)"},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equalf(t, tc.want, tc.args.err.Error(), "Error()")
 		})
 	}
 }
